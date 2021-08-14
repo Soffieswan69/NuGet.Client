@@ -11,7 +11,6 @@ using Microsoft;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Properties;
 using Microsoft.VisualStudio.ProjectSystem.References;
-using Microsoft.VisualStudio.Shell;
 using NuGet.Frameworks;
 using NuGet.LibraryModel;
 using NuGet.ProjectManagement;
@@ -37,7 +36,6 @@ namespace NuGet.PackageManagement.VisualStudio
             Assumes.Present(projectServices);
 
             _vsProjectAdapter = vsProjectAdapter;
-
             _threadingService = projectServices.GetGlobalService<IVsProjectThreadingService>();
             Assumes.Present(_threadingService);
         }
