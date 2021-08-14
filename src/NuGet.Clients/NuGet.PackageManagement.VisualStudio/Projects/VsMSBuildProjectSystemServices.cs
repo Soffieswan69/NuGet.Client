@@ -66,7 +66,15 @@ namespace NuGet.PackageManagement.VisualStudio
             _threadingService = GetGlobalService<IVsProjectThreadingService>();
             Assumes.Present(_threadingService);
 
-            ReferencesReader = new VsCoreProjectSystemReferenceReader(vsProjectAdapter, this);
+            // if it's a native project, we can have a different references reader.
+            if (vsProjectSystem is CpsProjectSystem)
+            {
+                ReferencesReader = new CpsProjectSystemReferenceReader(vsProjectAdapter, this);
+            }
+            else
+            {
+                ReferencesReader = new VsCoreProjectSystemReferenceReader(vsProjectAdapter, this);
+            }
             ScriptService = new VsProjectScriptHostService(vsProjectAdapter, this);
         }
     }

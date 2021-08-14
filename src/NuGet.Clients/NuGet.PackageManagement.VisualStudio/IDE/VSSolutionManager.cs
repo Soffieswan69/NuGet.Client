@@ -710,7 +710,7 @@ namespace NuGet.PackageManagement.VisualStudio
                             catch (Exception e)
                             {
                                 // Ignore failed projects.
-                                _logger.LogWarning($"The project {project.Name} failed to initialize as a NuGet project.");
+                                _logger.LogWarning($"The project {await GetProjectNameAsync(project)} failed to initialize as a NuGet project.");
                                 _logger.LogError(e.ToString());
                             }
 
@@ -730,6 +730,12 @@ namespace NuGet.PackageManagement.VisualStudio
                     }
                 }
             }, CancellationToken.None);
+
+            static async Task<string> GetProjectNameAsync(Project project)
+            {
+                await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                return project.Name;
+            }
         }
 
         private async Task AddVsProjectAdapterToCacheAsync(IVsProjectAdapter vsProjectAdapter)

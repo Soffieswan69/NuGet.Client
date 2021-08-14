@@ -95,7 +95,7 @@ namespace NuGet.PackageManagement.VisualStudio
             var fullProjectPath = vsProject.FullProjectPath;
             var unconfiguredProject = GetUnconfiguredProject(vsProject.Project);
 
-            var projectServices = new NetCoreProjectSystemServices(vsProject, await _componentModel.GetValueAsync());
+            var projectServices = new CpsProjectSystemServices(vsProject, await _componentModel.GetValueAsync());
 
             return new CpsPackageReferenceProject(
                 vsProject.ProjectName,

@@ -12,11 +12,11 @@ namespace NuGet.PackageManagement.VisualStudio
     /// <summary>
     /// Represent net core project systems in visual studio.
     /// </summary>
-    internal class NetCoreProjectSystemServices :
+    internal class CpsProjectSystemServices :
         GlobalProjectServiceProvider,
         INuGetProjectServices
     {
-        public NetCoreProjectSystemServices(
+        public CpsProjectSystemServices(
             IVsProjectAdapter vsProjectAdapter,
             IComponentModel componentModel)
             : base(componentModel)
