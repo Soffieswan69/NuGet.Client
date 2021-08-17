@@ -21,7 +21,6 @@ using NuGet.Common;
 using NuGet.Frameworks;
 using NuGet.PackageManagement.Utility;
 using NuGet.ProjectManagement;
-using NuGet.ProjectModel;
 using NuGet.VisualStudio;
 using PathUtility = NuGet.Common.PathUtility;
 using Task = System.Threading.Tasks.Task;
@@ -206,7 +205,7 @@ namespace NuGet.PackageManagement.VisualStudio
             // it into the project.
             // Other exceptions are 'web.config' and 'app.config'
             var fileName = Path.GetFileName(path);
-            var lockFileFullPath = PackagesConfigLockFileUtility.GetPackagesLockFilePath(ProjectFullPath, GetPropertyValue("NuGetLockFilePath")?.ToString(), ProjectName);
+            var lockFileFullPath = PackagesConfigLockFileUtility.GetPackagesLockFilePath(ProjectFullPath, (await GetPropertyValueAsync("NuGetLockFilePath"))?.ToString(), ProjectName);
             if (File.Exists(Path.Combine(ProjectFullPath, path))
                 && !fileExistsInProject
                 && !fileName.Equals(ProjectManagement.Constants.PackageReferenceFile)
@@ -469,9 +468,9 @@ namespace NuGet.PackageManagement.VisualStudio
                 });
         }
 
-        public virtual dynamic GetPropertyValue(string propertyName)
+        public virtual async Task<dynamic> GetPropertyValueAsync(string propertyName)
         {
-            return VsProjectAdapter.BuildProperties.GetPropertyValue(propertyName);
+            return await VsProjectAdapter.BuildProperties.GetPropertyValueAsync(propertyName);
         }
 
         public virtual bool IsSupportedFile(string path)

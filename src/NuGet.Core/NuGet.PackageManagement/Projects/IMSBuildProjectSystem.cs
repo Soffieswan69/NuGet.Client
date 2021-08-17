@@ -43,7 +43,9 @@ namespace NuGet.ProjectManagement
         // TODO NK - This can be async.
         void AddImport(string targetFullPath, ImportLocation location);
         void RemoveImport(string targetFullPath);
-        dynamic GetPropertyValue(string propertyName);
+#pragma warning disable RS0016 // Add public types and members to the declared API
+        Task<dynamic> GetPropertyValueAsync(string propertyName);
+#pragma warning restore RS0016 // Add public types and members to the declared API
         string ResolvePath(string path);
         bool IsSupportedFile(string path);
         void AddBindingRedirects();

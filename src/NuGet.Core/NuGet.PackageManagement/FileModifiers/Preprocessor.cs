@@ -101,7 +101,7 @@ namespace NuGet.ProjectManagement
         {
             return Common.Preprocessor.ProcessAsync(
                 streamTaskFactory,
-                propName => projectSystem.GetPropertyValue(propName),
+                propName => projectSystem.GetPropertyValueAsync(propName),
                 cancellationToken);
         }
     }

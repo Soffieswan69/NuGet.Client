@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.Shell;
 using NuGet.Common;
 using NuGet.ProjectManagement;
@@ -168,13 +169,13 @@ namespace NuGet.PackageManagement.VisualStudio
             return false;
         }
 
-        public override dynamic GetPropertyValue(string propertyName)
+        public override async Task<dynamic> GetPropertyValueAsync(string propertyName)
         {
             if (propertyName.Equals(RootNamespace, StringComparison.OrdinalIgnoreCase))
             {
                 return DefaultNamespace;
             }
-            return base.GetPropertyValue(propertyName);
+            return await base.GetPropertyValueAsync(propertyName);
         }
 
         public override IEnumerable<string> GetDirectories(string path)

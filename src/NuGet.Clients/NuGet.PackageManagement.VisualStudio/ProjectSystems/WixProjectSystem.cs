@@ -36,20 +36,20 @@ namespace NuGet.PackageManagement.VisualStudio
             return false;
         }
 
-        public override dynamic GetPropertyValue(string propertyName)
+        public override async Task<dynamic> GetPropertyValueAsync(string propertyName)
         {
             if (propertyName.Equals(RootNamespace, StringComparison.OrdinalIgnoreCase))
             {
                 try
                 {
-                    return base.GetPropertyValue(OutputName);
+                    return await base.GetPropertyValueAsync(OutputName);
                 }
                 catch
                 {
                     return DefaultNamespace;
                 }
             }
-            return base.GetPropertyValue(propertyName);
+            return await base.GetPropertyValueAsync(propertyName);
         }
 
         public override Task RemoveReferenceAsync(string name)

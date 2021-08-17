@@ -459,7 +459,6 @@ NuGet.ProjectManagement.IMSBuildProjectSystem.FileExistsInProject(string path) -
 NuGet.ProjectManagement.IMSBuildProjectSystem.GetDirectories(string path) -> System.Collections.Generic.IEnumerable<string>
 NuGet.ProjectManagement.IMSBuildProjectSystem.GetFiles(string path, string filter, bool recursive) -> System.Collections.Generic.IEnumerable<string>
 NuGet.ProjectManagement.IMSBuildProjectSystem.GetFullPaths(string fileName) -> System.Collections.Generic.IEnumerable<string>
-NuGet.ProjectManagement.IMSBuildProjectSystem.GetPropertyValue(string propertyName) -> dynamic
 NuGet.ProjectManagement.IMSBuildProjectSystem.IsSupportedFile(string path) -> bool
 NuGet.ProjectManagement.IMSBuildProjectSystem.NuGetProjectContext.get -> NuGet.ProjectManagement.INuGetProjectContext
 NuGet.ProjectManagement.IMSBuildProjectSystem.NuGetProjectContext.set -> void
@@ -504,7 +503,6 @@ NuGet.ProjectManagement.IPackageFileTransformer
 NuGet.ProjectManagement.IPackageFileTransformer.RevertFileAsync(System.Func<System.Threading.Tasks.Task<System.IO.Stream>> streamTaskFactory, string targetPath, System.Collections.Generic.IEnumerable<NuGet.ProjectManagement.InternalZipFileInfo> matchingFiles, NuGet.ProjectManagement.IMSBuildProjectSystem projectSystem, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task
 NuGet.ProjectManagement.IPackageFileTransformer.TransformFileAsync(System.Func<System.Threading.Tasks.Task<System.IO.Stream>> streamTaskFactory, string targetPath, NuGet.ProjectManagement.IMSBuildProjectSystem projectSystem, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task
 NuGet.ProjectManagement.IProjectBuildProperties
-NuGet.ProjectManagement.IProjectBuildProperties.GetPropertyValue(string propertyName) -> string
 NuGet.ProjectManagement.IProjectBuildProperties.GetPropertyValueAsync(string propertyName) -> System.Threading.Tasks.Task<string>
 NuGet.ProjectManagement.IProjectScriptHostService
 NuGet.ProjectManagement.IProjectScriptHostService.ExecutePackageInitScriptAsync(NuGet.Packaging.Core.PackageIdentity packageIdentity, string packageInstallPath, NuGet.ProjectManagement.INuGetProjectContext projectContext, bool throwOnFailure, System.Threading.CancellationToken token) -> System.Threading.Tasks.Task<bool>

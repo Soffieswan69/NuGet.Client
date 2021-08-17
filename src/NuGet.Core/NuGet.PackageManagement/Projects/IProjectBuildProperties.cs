@@ -12,13 +12,6 @@ namespace NuGet.ProjectManagement
     public interface IProjectBuildProperties
     {
         /// <summary>
-        /// Returns a property value.
-        /// </summary>
-        /// <param name="propertyName">A property name</param>
-        /// <returns>Property value or <code>null</code> if not found.</returns>
-        string GetPropertyValue(string propertyName);
-
-        /// <summary>
         /// Asynchronous method to retrieve a property value.
         /// </summary>
         /// <param name="propertyName">A property name</param>

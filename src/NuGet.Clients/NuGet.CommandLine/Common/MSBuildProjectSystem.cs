@@ -255,6 +255,11 @@ namespace NuGet.Common
 
         public dynamic GetPropertyValue(string propertyName)
         {
+            return GetPropertyValueAsync(propertyName).Result;
+        }
+
+        public dynamic GetPropertyValueAsync(string propertyName)
+        {
             return Project.GetPropertyValue(propertyName);
         }
 

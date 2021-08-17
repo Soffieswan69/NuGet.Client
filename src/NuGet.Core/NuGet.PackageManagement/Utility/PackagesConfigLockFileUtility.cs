@@ -9,6 +9,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using NuGet.Common;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -22,7 +23,7 @@ namespace NuGet.PackageManagement.Utility
     {
         private static readonly IComparer _dependencyComparer = new DependencyComparer();
 
-        internal static void UpdateLockFile(
+        internal static async Task UpdateLockFileAsync(
             MSBuildNuGetProject msbuildProject,
             List<NuGetProjectAction> actionsList,
             CancellationToken token)
@@ -33,9 +34,9 @@ namespace NuGet.PackageManagement.Utility
                 return;
             }
 
-            var lockFileName = GetPackagesLockFilePath(msbuildProject);
+            var lockFileName = await GetPackagesLockFilePath(msbuildProject);
             var lockFileExists = File.Exists(lockFileName);
-            var enableLockFile = IsRestorePackagesWithLockFileEnabled(msbuildProject);
+            var enableLockFile = await IsRestorePackagesWithLockFileEnabled(msbuildProject);
             if (enableLockFile == false && lockFileExists)
             {
                 var message = string.Format(CultureInfo.CurrentCulture, Strings.Error_InvalidLockFileInput, lockFileName);
@@ -57,17 +58,17 @@ namespace NuGet.PackageManagement.Utility
                     var lockFileRelativePath = projectUri.MakeRelativeUri(lockFileUri).OriginalString;
                     if (Path.DirectorySeparatorChar != '/')
                     {
-                        lockFileRelativePath.Replace('/', Path.DirectorySeparatorChar);
+                        lockFileRelativePath = lockFileRelativePath.Replace('/', Path.DirectorySeparatorChar);
                     }
                     msbuildProject.ProjectSystem.AddExistingFile(lockFileRelativePath);
                 }
             }
         }
 
-        internal static string GetPackagesLockFilePath(MSBuildNuGetProject msbuildProject)
+        internal static async Task<string> GetPackagesLockFilePath(MSBuildNuGetProject msbuildProject)
         {
             var directory = (string)msbuildProject.Metadata["FullPath"];
-            var msbuildProperty = msbuildProject.ProjectSystem?.GetPropertyValue("NuGetLockFilePath");
+            var msbuildProperty = await msbuildProject.ProjectSystem?.GetPropertyValueAsync("NuGetLockFilePath");
             var projectName = (string)msbuildProject.Metadata["UniqueName"];
 
             return GetPackagesLockFilePath(directory, msbuildProperty, projectName);
@@ -171,9 +172,9 @@ namespace NuGet.PackageManagement.Utility
         }
 
 
-        private static bool? IsRestorePackagesWithLockFileEnabled(MSBuildNuGetProject msbuildProject)
+        private static async Task<bool?> IsRestorePackagesWithLockFileEnabled(MSBuildNuGetProject msbuildProject)
         {
-            var msbuildProperty = msbuildProject?.ProjectSystem?.GetPropertyValue("RestorePackagesWithLockFile");
+            var msbuildProperty = await msbuildProject?.ProjectSystem?.GetPropertyValueAsync("RestorePackagesWithLockFile");
             if (msbuildProperty is string restorePackagesWithLockFileValue)
             {
                 if (bool.TryParse(restorePackagesWithLockFileValue, out var useLockFile))
