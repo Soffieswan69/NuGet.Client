@@ -41,6 +41,7 @@ namespace NuGet.VisualStudio
             }
         }
 
+// TODO NK 
         public static TService GetInstance<TService>() where TService : class
         {
             return NuGetUIThreadHelper.JoinableTaskFactory.Run(GetInstanceAsync<TService>);
@@ -79,6 +80,7 @@ namespace NuGet.VisualStudio
             return globalService;
         }
 
+// TODO NK
         public static TInterface GetGlobalService<TService, TInterface>() where TInterface : class
         {
             return NuGetUIThreadHelper.JoinableTaskFactory.Run(GetGlobalServiceAsync<TService, TInterface>);

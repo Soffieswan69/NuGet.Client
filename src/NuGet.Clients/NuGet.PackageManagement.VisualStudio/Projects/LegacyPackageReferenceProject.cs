@@ -311,11 +311,11 @@ namespace NuGet.PackageManagement.VisualStudio
             return msbuildProjectExtensionsPath;
         }
 
-        private string GetPackagesPath(ISettings settings)
+        private async Task<string> GetPackagesPathAsync(ISettings settings)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            await _threadingService.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var packagePath = _vsProjectAdapter.RestorePackagesPath;
+            var packagePath = await _vsProjectAdapter.RestorePackagesPath();
 
             if (string.IsNullOrEmpty(packagePath))
             {
@@ -325,11 +325,11 @@ namespace NuGet.PackageManagement.VisualStudio
             return UriUtility.GetAbsolutePathFromFile(_projectFullPath, packagePath);
         }
 
-        private IList<PackageSource> GetSources(ISettings settings)
+        private async Task<IList<PackageSource>> GetSourcesAsync(ISettings settings)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            await _threadingService.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var sources = MSBuildStringUtility.Split(_vsProjectAdapter.RestoreSources).AsEnumerable();
+            var sources = MSBuildStringUtility.Split(await _vsProjectAdapter.RestoreSources()).AsEnumerable();
 
             if (ShouldReadFromSettings(sources))
             {
@@ -341,16 +341,16 @@ namespace NuGet.PackageManagement.VisualStudio
             }
 
             // Add additional sources
-            sources = sources.Concat(MSBuildStringUtility.Split(_vsProjectAdapter.RestoreAdditionalProjectSources));
+            sources = sources.Concat(MSBuildStringUtility.Split(await _vsProjectAdapter.RestoreAdditionalProjectSources()));
 
             return sources.Select(e => new PackageSource(UriUtility.GetAbsolutePathFromFile(_projectFullPath, e))).ToList();
         }
 
-        private IList<string> GetFallbackFolders(ISettings settings, bool shouldThrow = true)
+        private async Task<IList<string>> GetFallbackFoldersAsync(ISettings settings, bool shouldThrow = true)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            await _threadingService.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var fallbackFolders = MSBuildStringUtility.Split(_vsProjectAdapter.RestoreFallbackFolders).AsEnumerable();
+            var fallbackFolders = MSBuildStringUtility.Split(await _vsProjectAdapter.RestoreFallbackFolders()).AsEnumerable();
 
             if (ShouldReadFromSettings(fallbackFolders))
             {
@@ -362,7 +362,7 @@ namespace NuGet.PackageManagement.VisualStudio
             }
 
             // Add additional fallback folders
-            fallbackFolders = fallbackFolders.Concat(MSBuildStringUtility.Split(_vsProjectAdapter.RestoreAdditionalProjectFallbackFolders));
+            fallbackFolders = fallbackFolders.Concat(MSBuildStringUtility.Split(await _vsProjectAdapter.RestoreAdditionalProjectFallbackFolders()));
 
             return fallbackFolders.Select(e => UriUtility.GetAbsolutePathFromFile(_projectFullPath, e)).ToList();
         }
@@ -386,7 +386,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
             var projectReferences = await ProjectServices
                 .ReferencesReader
-                .GetProjectReferencesAsync(Common.NullLogger.Instance, CancellationToken.None);
+                .GetProjectReferencesAsync(NullLogger.Instance, CancellationToken.None);
 
             var targetFramework = await _vsProjectAdapter.GetTargetFrameworkAsync();
 
@@ -395,11 +395,11 @@ namespace NuGet.PackageManagement.VisualStudio
                 .GetPackageReferencesAsync(targetFramework, CancellationToken.None))
                 .ToList();
 
-            var packageTargetFallback = MSBuildStringUtility.Split(_vsProjectAdapter.PackageTargetFallback)
+            var packageTargetFallback = MSBuildStringUtility.Split(await _vsProjectAdapter.PackageTargetFallback())
                 .Select(NuGetFramework.Parse)
                 .ToList();
 
-            var assetTargetFallback = MSBuildStringUtility.Split(_vsProjectAdapter.AssetTargetFallback)
+            var assetTargetFallback = MSBuildStringUtility.Split(await _vsProjectAdapter.AssetTargetFallback())
                 .Select(NuGetFramework.Parse)
                 .ToList();
 
@@ -433,7 +433,7 @@ namespace NuGet.PackageManagement.VisualStudio
             return new PackageSpec(tfis)
             {
                 Name = projectName,
-                Version = new NuGetVersion(_vsProjectAdapter.Version),
+                Version = new NuGetVersion(await _vsProjectAdapter.Version()),
                 Authors = Array.Empty<string>(),
                 Owners = Array.Empty<string>(),
                 Tags = Array.Empty<string>(),
@@ -459,14 +459,14 @@ namespace NuGet.PackageManagement.VisualStudio
                     },
                     SkipContentFileWrite = true,
                     CacheFilePath = await GetCacheFilePathAsync(),
-                    PackagesPath = GetPackagesPath(settings),
-                    Sources = GetSources(settings),
-                    FallbackFolders = GetFallbackFolders(settings),
+                    PackagesPath = await GetPackagesPathAsync(settings),
+                    Sources = await GetSourcesAsync(settings),
+                    FallbackFolders = await GetFallbackFoldersAsync(settings),
                     ConfigFilePaths = GetConfigFilePaths(settings),
                     ProjectWideWarningProperties = WarningProperties.GetWarningProperties(
-                        treatWarningsAsErrors: _vsProjectAdapter.TreatWarningsAsErrors,
-                        noWarn: _vsProjectAdapter.NoWarn,
-                        warningsAsErrors: _vsProjectAdapter.WarningsAsErrors),
+                        treatWarningsAsErrors: await _vsProjectAdapter.TreatWarningsAsErrors(),
+                        noWarn: await _vsProjectAdapter.NoWarn(),
+                        warningsAsErrors: await _vsProjectAdapter.WarningsAsErrors()),
                     RestoreLockProperties = new RestoreLockProperties(
                         await _vsProjectAdapter.GetRestorePackagesWithLockFileAsync(),
                         await _vsProjectAdapter.GetNuGetLockFilePathAsync(),

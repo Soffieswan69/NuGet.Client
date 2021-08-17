@@ -511,7 +511,6 @@ NuGet.ProjectManagement.IProjectScriptHostService.ExecutePackageInitScriptAsync(
 NuGet.ProjectManagement.IProjectScriptHostService.ExecutePackageScriptAsync(NuGet.Packaging.Core.PackageIdentity packageIdentity, string packageInstallPath, string scriptRelativePath, NuGet.ProjectManagement.INuGetProjectContext projectContext, bool throwOnFailure, System.Threading.CancellationToken token) -> System.Threading.Tasks.Task
 NuGet.ProjectManagement.IProjectSystemCapabilities
 NuGet.ProjectManagement.IProjectSystemCapabilities.NominatesOnSolutionLoad.get -> bool
-NuGet.ProjectManagement.IProjectSystemCapabilities.SupportsPackageReferences.get -> bool
 NuGet.ProjectManagement.IProjectSystemReferencesReader
 NuGet.ProjectManagement.IProjectSystemReferencesReader.GetPackageReferencesAsync(NuGet.Frameworks.NuGetFramework targetFramework, System.Threading.CancellationToken token) -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NuGet.LibraryModel.LibraryDependency>>
 NuGet.ProjectManagement.IProjectSystemReferencesReader.GetProjectReferencesAsync(NuGet.Common.ILogger logger, System.Threading.CancellationToken token) -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NuGet.ProjectModel.ProjectRestoreReference>>

@@ -33,6 +33,7 @@ namespace NuGet.PackageManagement.VisualStudio
             _threadingService = threadingService;
         }
 
+        // TODO NK 
         public string GetPropertyValue(string propertyName)
         {
             return _threadingService.ExecuteSynchronously(() => GetPropertyValueAsync(propertyName));

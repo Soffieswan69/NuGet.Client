@@ -60,7 +60,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
             // this further check if current project system supports VSProject4 or not which is essential to skip
             // projects like c++ which currently doesn't support VSProject4 implementation for PackageReference
-            if (!msBuildNuGetProject.ProjectServices.Capabilities.SupportsPackageReferences)
+            if (!await msBuildNuGetProject.ProjectServices.Capabilities.SupportsPackageReferences())
             {
                 return false;
             }

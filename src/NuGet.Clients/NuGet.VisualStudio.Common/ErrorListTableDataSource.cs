@@ -205,6 +205,7 @@ namespace NuGet.VisualStudio.Common
                 {
                     if (!_initialized)
                     {
+                        // TODO NK - Clean this up.
                         NuGetUIThreadHelper.JoinableTaskFactory.Run(async () =>
                         {
                             await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();

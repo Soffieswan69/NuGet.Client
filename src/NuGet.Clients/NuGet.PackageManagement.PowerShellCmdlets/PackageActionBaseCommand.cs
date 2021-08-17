@@ -292,7 +292,7 @@ namespace NuGet.PackageManagement.PowerShellCmdlets
 
             if (Project.ProjectStyle == ProjectModel.ProjectStyle.PackagesConfig)
             {
-                packagesConfigAndSupportsPackageReferences = Project.ProjectServices.Capabilities.SupportsPackageReferences;
+                packagesConfigAndSupportsPackageReferences = await Project.ProjectServices.Capabilities.SupportsPackageReferences();
             }
 
             // The Project is compatible with, but is currently not a PackageReference-style project, and no packages are currently installed.

@@ -40,7 +40,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
         private VSProject4 AsVSProject4 => _asVSProject4.Value;
 
-        public bool SupportsPackageReferences => true;
+        public Task<bool> SupportsPackageReferences() => Task.FromResult(true);
 
         public bool NominatesOnSolutionLoad { get; private set; } = false;
 
@@ -86,7 +86,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
             _asVSProject4 = new Lazy<VSProject4>(() =>
             {
-                _threadingService.ThrowIfNotOnUIThread();
+                ThreadHelper.ThrowIfNotOnUIThread();
                 return vsProjectAdapter.Project.Object as VSProject4;
             });
 
@@ -301,7 +301,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
         private void AddOrUpdatePackageReference(string packageName, VersionRange packageVersion, string[] metadataElements, string[] metadataValues)
         {
-            _threadingService.ThrowIfNotOnUIThread();
+            ThreadHelper.ThrowIfNotOnUIThread();
 
             // Note that API behavior is:
             // - specify a metadata element name with a value => add/replace that metadata item on the package reference

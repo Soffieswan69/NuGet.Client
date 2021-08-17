@@ -36,7 +36,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
         public async Task<string> GetMSBuildProjectExtensionsPathAsync()
         {
-            var msbuildProjectExtensionsPath = BuildProperties.GetPropertyValue(ProjectBuildProperties.MSBuildProjectExtensionsPath);
+            var msbuildProjectExtensionsPath = await BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.MSBuildProjectExtensionsPath);
 
             if (string.IsNullOrEmpty(msbuildProjectExtensionsPath))
             {
@@ -46,49 +46,41 @@ namespace NuGet.PackageManagement.VisualStudio
             return Path.Combine(await GetProjectDirectoryAsync(), msbuildProjectExtensionsPath);
         }
 
-        public string RestorePackagesPath
+        public async Task<string> RestorePackagesPath()
         {
-            get
+            var restorePackagesPath = await BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.RestorePackagesPath);
+
+            if (string.IsNullOrWhiteSpace(restorePackagesPath))
             {
-                var restorePackagesPath = BuildProperties.GetPropertyValue(ProjectBuildProperties.RestorePackagesPath);
-
-                if (string.IsNullOrWhiteSpace(restorePackagesPath))
-                {
-                    return null;
-                }
-
-                return restorePackagesPath;
+                return null;
             }
+
+            return restorePackagesPath;
         }
 
-        public string RestoreSources
+        public async Task<string> RestoreSources()
         {
-            get
+            var restoreSources = await BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.RestoreSources);
+
+            if (string.IsNullOrWhiteSpace(restoreSources))
             {
-                var restoreSources = BuildProperties.GetPropertyValue(ProjectBuildProperties.RestoreSources);
-
-                if (string.IsNullOrWhiteSpace(restoreSources))
-                {
-                    return null;
-                }
-
-                return restoreSources;
+                return null;
             }
+
+            return restoreSources;
         }
 
-        public string RestoreFallbackFolders
+        public async Task<string> RestoreFallbackFolders()
         {
-            get
+
+            var restoreFallbackFolders = await BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.RestoreFallbackFolders);
+
+            if (string.IsNullOrWhiteSpace(restoreFallbackFolders))
             {
-                var restoreFallbackFolders = BuildProperties.GetPropertyValue(ProjectBuildProperties.RestoreFallbackFolders);
-
-                if (string.IsNullOrWhiteSpace(restoreFallbackFolders))
-                {
-                    return null;
-                }
-
-                return restoreFallbackFolders;
+                return null;
             }
+
+            return restoreFallbackFolders;
         }
 
         public IProjectBuildProperties BuildProperties { get; private set; }
@@ -117,20 +109,14 @@ namespace NuGet.PackageManagement.VisualStudio
             return await EnvDTEProjectUtility.IsSupportedAsync(Project);
         }
 
-        public string PackageTargetFallback
+        public Task<string> PackageTargetFallback()
         {
-            get
-            {
-                return BuildProperties.GetPropertyValue(ProjectBuildProperties.PackageTargetFallback);
-            }
+            return BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.PackageTargetFallback);
         }
 
-        public string AssetTargetFallback
+        public Task<string> AssetTargetFallback()
         {
-            get
-            {
-                return BuildProperties.GetPropertyValue(ProjectBuildProperties.AssetTargetFallback);
-            }
+            return BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.AssetTargetFallback);
         }
 
         public EnvDTE.Project Project => _dteProject.Value;
@@ -155,39 +141,34 @@ namespace NuGet.PackageManagement.VisualStudio
 
         public string UniqueName => ProjectNames.UniqueName;
 
-        public string Version
+        public async Task<string> Version()
         {
-            get
-            {
-                _threadingService.ThrowIfNotOnUIThread();
+            var packageVersion = await BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.PackageVersion);
 
-                var packageVersion = BuildProperties.GetPropertyValue(ProjectBuildProperties.PackageVersion);
+            if (string.IsNullOrEmpty(packageVersion))
+            {
+                packageVersion = await BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.Version);
 
                 if (string.IsNullOrEmpty(packageVersion))
                 {
-                    packageVersion = BuildProperties.GetPropertyValue(ProjectBuildProperties.Version);
-
-                    if (string.IsNullOrEmpty(packageVersion))
-                    {
-                        packageVersion = "1.0.0";
-                    }
+                    packageVersion = "1.0.0";
                 }
-
-                return packageVersion;
             }
+
+            return packageVersion;
         }
 
         public IVsHierarchy VsHierarchy => _vsHierarchyItem.VsHierarchy;
 
-        public string RestoreAdditionalProjectSources => BuildProperties.GetPropertyValue(ProjectBuildProperties.RestoreAdditionalProjectSources);
+        public Task<string> RestoreAdditionalProjectSources() => BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.RestoreAdditionalProjectSources);
 
-        public string RestoreAdditionalProjectFallbackFolders => BuildProperties.GetPropertyValue(ProjectBuildProperties.RestoreAdditionalProjectFallbackFolders);
+        public Task<string> RestoreAdditionalProjectFallbackFolders() => BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.RestoreAdditionalProjectFallbackFolders);
 
-        public string NoWarn => BuildProperties.GetPropertyValue(ProjectBuildProperties.NoWarn);
+        public Task<string> NoWarn() => BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.NoWarn);
 
-        public string WarningsAsErrors => BuildProperties.GetPropertyValue(ProjectBuildProperties.WarningsAsErrors);
+        public Task<string> WarningsAsErrors() => BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.WarningsAsErrors);
 
-        public string TreatWarningsAsErrors => BuildProperties.GetPropertyValue(ProjectBuildProperties.TreatWarningsAsErrors);
+        public Task<string> TreatWarningsAsErrors() => BuildProperties.GetPropertyValueAsync(ProjectBuildProperties.TreatWarningsAsErrors);
 
         #endregion Properties
 
@@ -245,7 +226,7 @@ namespace NuGet.PackageManagement.VisualStudio
                 return EnvDTEProjectUtility.GetReferencedProjects(Project)
                     .Select(p =>
                     {
-                        _threadingService.ThrowIfNotOnUIThread();
+                        ThreadHelper.ThrowIfNotOnUIThread();
                         return p.UniqueName;
                     });
             }

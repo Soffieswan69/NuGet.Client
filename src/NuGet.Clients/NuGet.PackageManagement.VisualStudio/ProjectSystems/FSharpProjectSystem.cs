@@ -48,6 +48,7 @@ namespace NuGet.PackageManagement.VisualStudio
             base.AddGacReference("*" + name);
         }
 
+        // TODO NK - This can be async
         public override bool FileExistsInProject(string path)
         {
             return NuGetUIThreadHelper.JoinableTaskFactory.Run(async delegate

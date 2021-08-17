@@ -339,9 +339,9 @@ namespace NuGet.PackageManagement.VisualStudio
 
         public async Task<bool> IsSolutionOpenAsync()
         {
-            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
             var dte = await _asyncServiceProvider.GetDTEAsync();
+
+            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             return dte != null &&
                    dte.Solution != null &&
                    dte.Solution.IsOpen;
@@ -349,8 +349,6 @@ namespace NuGet.PackageManagement.VisualStudio
 
         public async Task<bool> IsSolutionAvailableAsync()
         {
-            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
             if (!await IsSolutionOpenAsync())
             {
                 // Solution is not open. Return false.
@@ -359,7 +357,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
             await EnsureInitializeAsync();
 
-            if (!DoesSolutionRequireAnInitialSaveAs())
+            if (!await DoesSolutionRequireAnInitialSaveAsAsync())
             {
                 // Solution is open and 'Save As' is not required. Return true.
                 return true;
@@ -422,19 +420,24 @@ namespace NuGet.PackageManagement.VisualStudio
             {
                 return NuGetUIThreadHelper.JoinableTaskFactory.Run(async delegate
                 {
-                    if (!await IsSolutionOpenAsync())
-                    {
-                        return null;
-                    }
-                    var solutionFilePath = await GetSolutionFilePathAsync();
-
-                    if (string.IsNullOrEmpty(solutionFilePath))
-                    {
-                        return null;
-                    }
-                    return Path.GetDirectoryName(solutionFilePath);
+                    return await GetSolutionDirectoryAsync();
                 });
             }
+        }
+
+        public async Task<string> GetSolutionDirectoryAsync()
+        {
+            if (!await IsSolutionOpenAsync())
+            {
+                return null;
+            }
+            var solutionFilePath = await GetSolutionFilePathAsync();
+
+            if (string.IsNullOrEmpty(solutionFilePath))
+            {
+                return null;
+            }
+            return Path.GetDirectoryName(solutionFilePath);
         }
 
         public async Task<string> GetSolutionFilePathAsync()
@@ -469,9 +472,10 @@ namespace NuGet.PackageManagement.VisualStudio
         /// <summary>
         /// Checks whether the current solution is saved to disk, as opposed to be in memory.
         /// </summary>
-        private bool DoesSolutionRequireAnInitialSaveAs()
+        private async Task<bool> DoesSolutionRequireAnInitialSaveAsAsync()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            // TODO NK - Is this stilla  thing?
+            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // Check if user is doing File - New File without saving the solution.
             var value = GetVSSolutionProperty((int)(__VSPROPID.VSPROPID_IsSolutionSaveAsRequired));
@@ -847,7 +851,7 @@ namespace NuGet.PackageManagement.VisualStudio
         {
             var context = new ProjectProviderContext(
                 projectContext ?? EmptyNuGetProjectContext,
-                () => PackagesFolderPathUtility.GetPackagesFolderPath(this, _settings.Value));
+                async () => await PackagesFolderPathUtility.GetPackagesFolderPathAsync(this, _settings.Value));
 
             return await _projectSystemFactory.TryCreateNuGetProjectAsync(project, context);
         }
@@ -1024,7 +1028,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
             var context = new ProjectProviderContext(
                 EmptyNuGetProjectContext,
-                () => PackagesFolderPathUtility.GetPackagesFolderPath(this, _settings.Value));
+                async () => await PackagesFolderPathUtility.GetPackagesFolderPathAsync(this, _settings.Value));
 
             var nuGetProject = await _projectSystemFactory.CreateNuGetProjectAsync<LegacyPackageReferenceProject>(
                 vsProjectAdapter, context);

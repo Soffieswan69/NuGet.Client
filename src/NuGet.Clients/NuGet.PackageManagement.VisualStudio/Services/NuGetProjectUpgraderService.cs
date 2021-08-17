@@ -80,10 +80,14 @@ namespace NuGet.PackageManagement.VisualStudio
 
             var upgradeableProjects = new List<IProjectContextInfo>();
 
-            IEnumerable<NuGetProject> capableProjects = projects
-                .Where(project =>
-                    project.ProjectStyle == ProjectModel.ProjectStyle.PackagesConfig &&
-                    project.ProjectServices.Capabilities.SupportsPackageReferences);
+            var capableProjects = new List<NuGetProject>(projects.Length);
+            foreach (var project in projects)
+            {
+                if (project.ProjectStyle == ProjectModel.ProjectStyle.PackagesConfig && await project.ProjectServices.Capabilities.SupportsPackageReferences())
+                {
+                    capableProjects.Add(project);
+                }
+            }
 
             // get all packages.config based projects with no installed packages
             foreach (NuGetProject project in capableProjects)

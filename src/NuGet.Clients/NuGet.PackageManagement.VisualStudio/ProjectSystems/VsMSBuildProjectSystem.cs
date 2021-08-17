@@ -47,6 +47,7 @@ namespace NuGet.PackageManagement.VisualStudio
         {
             get
             {
+                // This can be sychronized
                 if (_buildSystem == null)
                 {
                     NuGetUIThreadHelper.JoinableTaskFactory.Run(async delegate

@@ -19,7 +19,7 @@ namespace NuGet.VisualStudio
         /// <summary>
         /// AssetTargetFallback project property
         /// </summary>
-        string AssetTargetFallback { get; }
+        Task<string> AssetTargetFallback();
 
         /// <summary>
         /// MSBuildProjectExtensionsPath project property (e.g. c:\projFoo\obj)
@@ -39,12 +39,12 @@ namespace NuGet.VisualStudio
         /// <summary>
         /// Comma or Semicolon separated list of NU* diagnostic codes e.g. NU1000,NU1001
         /// </summary>
-        string NoWarn { get; }
+        Task<string> NoWarn();
 
         /// <summary>
         /// PackageTargetFallback project property
         /// </summary>
-        string PackageTargetFallback { get; }
+        Task<string> PackageTargetFallback();
 
         /// <summary>
         /// In unavoidable circumstances where we need to DTE object, it's exposed here
@@ -65,46 +65,46 @@ namespace NuGet.VisualStudio
         /// <summary>
         /// Additional fallback folders DTE property
         /// </summary>
-        string RestoreAdditionalProjectFallbackFolders { get; }
+        Task<string> RestoreAdditionalProjectFallbackFolders();
 
         /// <summary>
         /// Additional Sources DTE property
         /// </summary>
-        string RestoreAdditionalProjectSources { get; }
+        Task<string> RestoreAdditionalProjectSources();
 
         /// <summary>
         /// RestoreFallbackFolders DTE property
         /// </summary>
-        string RestoreFallbackFolders { get; }
+        Task<string> RestoreFallbackFolders();
 
         /// <summary>
         /// Restore Packages Path DTE property
         /// </summary>
-        string RestorePackagesPath { get; }
+        Task<string> RestorePackagesPath();
 
         /// <summary>
         /// Restore Sources DTE property
         /// </summary>
-        string RestoreSources { get; }
+        Task<string> RestoreSources();
 
         /// <summary>
         /// TreatWarningsAsErrors true/false
         /// </summary>
-        string TreatWarningsAsErrors { get; }
+        Task<string> TreatWarningsAsErrors();
 
         string UniqueName { get; }
 
         /// <summary>
         /// Version
         /// </summary>
-        string Version { get; }
+        Task<string> Version();
 
         IVsHierarchy VsHierarchy { get; }
 
         /// <summary>
         /// Comma or Semicolon separated list of NU* diagnostic codes e.g. NU1000,NU1001
         /// </summary>
-        string WarningsAsErrors { get; }
+        Task<string> WarningsAsErrors();
 
         Task<string[]> GetProjectTypeGuidsAsync();
 

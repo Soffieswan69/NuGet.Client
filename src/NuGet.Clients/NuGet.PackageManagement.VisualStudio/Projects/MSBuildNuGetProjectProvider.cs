@@ -64,7 +64,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
             var projectServices = await CreateProjectServicesAsync(vsProjectAdapter, projectSystem);
 
-            var folderNuGetProjectFullPath = context.PackagesPathFactory();
+            var folderNuGetProjectFullPath = await context.PackagesPathFactory();
 
             // Project folder path is the packages config folder path
             var packagesConfigFolderPath = await vsProjectAdapter.GetProjectDirectoryAsync();

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NuGet.ProjectManagement;
 
 namespace NuGet.PackageManagement.VisualStudio
@@ -15,11 +16,11 @@ namespace NuGet.PackageManagement.VisualStudio
     {
         public INuGetProjectContext ProjectContext { get; }
 
-        public Func<string> PackagesPathFactory { get; }
+        public Func<Task<string>> PackagesPathFactory { get; }
 
         public ProjectProviderContext(
             INuGetProjectContext projectContext,
-            Func<string> packagesPathFactory)
+            Func<Task<string>> packagesPathFactory)
         {
             if (projectContext == null)
             {

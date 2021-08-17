@@ -300,12 +300,12 @@ namespace NuGet.VisualStudio
                 // RepositorySettings = null in unit tests
                 if (project.IsWebSite())
                 {
-                    CreateRefreshFilesInBin(
+                    await CreateRefreshFilesInBinAsync(
                         project,
                         repositoryPath,
                         configuration.Packages.Where(p => p.SkipAssemblyReferences));
 
-                    CopyNativeBinariesToBin(project, repositoryPath, configuration.Packages);
+                    await CopyNativeBinariesToBinAsync(project, repositoryPath, configuration.Packages);
                 }
             }
             finally
@@ -321,10 +321,10 @@ namespace NuGet.VisualStudio
         /// <param name="project">The target Website project.</param>
         /// <param name="repositoryPath">The local repository path.</param>
         /// <param name="packageInfos">The packages that were installed.</param>
-        private void CreateRefreshFilesInBin(EnvDTE.Project project, string repositoryPath, IEnumerable<PreinstalledPackageInfo> packageInfos)
+        private async Task CreateRefreshFilesInBinAsync(EnvDTE.Project project, string repositoryPath, IEnumerable<PreinstalledPackageInfo> packageInfos)
         {
             IEnumerable<PackageIdentity> packageNames = packageInfos.Select(pi => new PackageIdentity(pi.Id, pi.Version));
-            AddRefreshFilesForReferences(project, repositoryPath, packageNames);
+            await AddRefreshFilesForReferencesAsync(project, repositoryPath, packageNames);
         }
 
         /// <summary>
@@ -334,7 +334,7 @@ namespace NuGet.VisualStudio
         /// <param name="project">The project.</param>
         /// <param name="repositoryPath">The file system pointing to 'packages' folder under the solution.</param>
         /// <param name="packageNames">The package names.</param>
-        private void AddRefreshFilesForReferences(EnvDTE.Project project, string repositoryPath, IEnumerable<PackageIdentity> packageNames)
+        private async Task AddRefreshFilesForReferencesAsync(EnvDTE.Project project, string repositoryPath, IEnumerable<PackageIdentity> packageNames)
         {
             if (project == null)
             {
@@ -360,7 +360,7 @@ namespace NuGet.VisualStudio
                 ClientPolicyContext.GetClientPolicy(_settings, logger),
                 logger);
 
-            WebSiteProjectSystem projectSystem = new WebSiteProjectSystem(_vsProjectAdapterProvider.CreateAdapterForFullyLoadedProject(project), context);
+            WebSiteProjectSystem projectSystem = new WebSiteProjectSystem(await _vsProjectAdapterProvider.CreateAdapterForFullyLoadedProjectAsync(project), context);
 
             foreach (var packageName in packageNames)
             {
@@ -400,7 +400,7 @@ namespace NuGet.VisualStudio
         /// <param name="project">The target Website project.</param>
         /// <param name="repositoryPath">The local repository path.</param>
         /// <param name="packageInfos">The packages that were installed.</param>
-        private void CopyNativeBinariesToBin(EnvDTE.Project project, string repositoryPath, IEnumerable<PreinstalledPackageInfo> packageInfos)
+        private async Task CopyNativeBinariesToBinAsync(EnvDTE.Project project, string repositoryPath, IEnumerable<PreinstalledPackageInfo> packageInfos)
         {
             var context = new VSAPIProjectContext
             {
@@ -410,7 +410,7 @@ namespace NuGet.VisualStudio
                     ClientPolicyContext.GetClientPolicy(_settings, NullLogger.Instance),
                     NullLogger.Instance)
             };
-            var projectSystem = new VsMSBuildProjectSystem(_vsProjectAdapterProvider.CreateAdapterForFullyLoadedProject(project), context);
+            var projectSystem = new VsMSBuildProjectSystem(await _vsProjectAdapterProvider.CreateAdapterForFullyLoadedProjectAsync(project), context);
 
             foreach (var packageInfo in packageInfos)
             {

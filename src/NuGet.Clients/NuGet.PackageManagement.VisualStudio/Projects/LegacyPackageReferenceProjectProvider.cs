@@ -58,7 +58,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
         public async Task<NuGetProject> TryCreateNuGetProjectAsync(
             IVsProjectAdapter vsProjectAdapter,
-            ProjectProviderContext context,
+            ProjectProviderContext _,
             bool forceProjectType)
         {
             Assumes.Present(vsProjectAdapter);

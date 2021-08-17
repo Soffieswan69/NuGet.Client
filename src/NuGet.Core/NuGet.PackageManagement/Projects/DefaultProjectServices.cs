@@ -34,7 +34,7 @@ namespace NuGet.ProjectManagement
         public IProjectSystemReferencesService References => this;
         public IProjectScriptHostService ScriptService => this;
 
-        public bool SupportsPackageReferences => false;
+        public Task<bool> SupportsPackageReferences() => Task.FromResult(false);
 
         public bool NominatesOnSolutionLoad => false;
 

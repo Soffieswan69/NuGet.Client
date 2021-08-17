@@ -52,6 +52,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
         public Task SaveSolutionExplorerNodeStates(ISolutionManager solutionManager)
         {
+            // TODO NK 
             if (solutionManager == null)
             {
                 throw new ArgumentNullException(nameof(solutionManager));
@@ -69,6 +70,8 @@ namespace NuGet.PackageManagement.VisualStudio
 
         public Task CollapseAllNodes(ISolutionManager solutionManager)
         {
+                        // TODO NK 
+
             if (solutionManager == null)
             {
                 throw new ArgumentNullException(nameof(solutionManager));

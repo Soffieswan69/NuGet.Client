@@ -41,12 +41,6 @@ namespace NuGet.PackageManagement.VisualStudio
             _vsSolution = vsSolution;
         }
 
-        public IVsProjectAdapter CreateAdapterForFullyLoadedProject(EnvDTE.Project dteProject)
-        {
-            return _threadingService.ExecuteSynchronously(
-                () => CreateAdapterForFullyLoadedProjectAsync(dteProject));
-        }
-
         public async Task<IVsProjectAdapter> CreateAdapterForFullyLoadedProjectAsync(EnvDTE.Project dteProject)
         {
             Assumes.Present(dteProject);

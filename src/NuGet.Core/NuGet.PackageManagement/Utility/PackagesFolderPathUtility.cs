@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using NuGet.Configuration;
 
 namespace NuGet.PackageManagement
@@ -14,6 +15,7 @@ namespace NuGet.PackageManagement
     {
         private const string DefaultRepositoryPath = "packages";
 
+        // TODO NK - This hides the fact that there is going to be UI thread switch
         public static string GetPackagesFolderPath(ISolutionManager solutionManager, Configuration.ISettings settings)
         {
             if (solutionManager == null)
@@ -21,6 +23,7 @@ namespace NuGet.PackageManagement
                 throw new ArgumentNullException(nameof(solutionManager));
             }
 
+            // TODO NK - Change this shit to a sync version.
             // If the solution directory is unavailable then throw an exception
             if (solutionManager.SolutionDirectory == null)
             {
@@ -29,6 +32,26 @@ namespace NuGet.PackageManagement
 
             return GetPackagesFolderPath(solutionManager.SolutionDirectory, settings);
         }
+
+#pragma warning disable RS0016 // Add public types and members to the declared API
+        public static async Task<string> GetPackagesFolderPathAsync(ISolutionManager solutionManager, ISettings settings)
+#pragma warning restore RS0016 // Add public types and members to the declared API
+        {
+            if (solutionManager == null)
+            {
+                throw new ArgumentNullException(nameof(solutionManager));
+            }
+
+            // TODO NK - Change this shit to a sync version.
+            // If the solution directory is unavailable then throw an exception
+            if (await solutionManager.GetSolutionDirectoryAsync() == null)
+            {
+                throw new InvalidOperationException(Strings.SolutionDirectoryNotAvailable);
+            }
+
+            return GetPackagesFolderPath(solutionManager.SolutionDirectory, settings);
+        }
+
 
         public static string GetPackagesFolderPath(string solutionDirectory, Configuration.ISettings settings)
         {

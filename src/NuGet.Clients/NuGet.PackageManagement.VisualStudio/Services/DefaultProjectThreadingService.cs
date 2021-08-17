@@ -7,28 +7,13 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
 using NuGet.VisualStudio;
-using Task = System.Threading.Tasks.Task;
 
 namespace NuGet.PackageManagement.VisualStudio
 {
     [Export(typeof(IVsProjectThreadingService))]
     internal class DefaultProjectThreadingService : IVsProjectThreadingService
     {
+        // TODO NK - remove this?
         public JoinableTaskFactory JoinableTaskFactory => NuGetUIThreadHelper.JoinableTaskFactory;
-
-        public void ExecuteSynchronously(Func<Task> asyncAction)
-        {
-            NuGetUIThreadHelper.JoinableTaskFactory.Run(asyncAction);
-        }
-
-        public T ExecuteSynchronously<T>(Func<Task<T>> asyncMethod)
-        {
-            return NuGetUIThreadHelper.JoinableTaskFactory.Run(asyncMethod);
-        }
-
-        public void ThrowIfNotOnUIThread(string callerMemberName)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread(callerMemberName);
-        }
     }
 }
