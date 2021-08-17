@@ -11,6 +11,7 @@ using Microsoft;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Properties;
 using Microsoft.VisualStudio.ProjectSystem.References;
+using Microsoft.VisualStudio.Threading;
 using NuGet.Frameworks;
 using NuGet.LibraryModel;
 using NuGet.ProjectManagement;
@@ -27,67 +28,63 @@ namespace NuGet.PackageManagement.VisualStudio
     {
         private readonly IVsProjectAdapter _vsProjectAdapter;
         private readonly IVsProjectThreadingService _threadingService;
+        private readonly AsyncLazy<ConfiguredProject> _configuredProject;
 
         public CpsProjectSystemReferenceReader(
             IVsProjectAdapter vsProjectAdapter,
-            INuGetProjectServices projectServices)
+            IVsProjectThreadingService threadingService)
         {
             Assumes.Present(vsProjectAdapter);
-            Assumes.Present(projectServices);
+            Assumes.Present(threadingService);
 
             _vsProjectAdapter = vsProjectAdapter;
-            _threadingService = projectServices.GetGlobalService<IVsProjectThreadingService>();
-            Assumes.Present(_threadingService);
-        }
-
-        private async Task<ConfiguredProject> GetConfiguredProjectAsync(EnvDTE.Project project)
-        {
-            await _threadingService.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            var context = project as IVsBrowseObjectContext;
-            if (context == null)
+            _threadingService = threadingService;
+            _configuredProject = new AsyncLazy<ConfiguredProject>(async () =>
             {
-                // VC implements this on their DTE.Project.Object
-                context = project.Object as IVsBrowseObjectContext;
-            }
-            return context?.ConfiguredProject;
+                await _threadingService.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                var context = _vsProjectAdapter.Project as IVsBrowseObjectContext;
+                if (context == null)
+                {
+                    // VC implements this on their DTE.Project.Object
+                    context = _vsProjectAdapter.Project.Object as IVsBrowseObjectContext;
+                }
+                return context?.ConfiguredProject;
+            }, threadingService.JoinableTaskFactory);
         }
 
         public async Task<IEnumerable<ProjectRestoreReference>> GetProjectReferencesAsync(
             Common.ILogger logger, CancellationToken _)
         {
-            var project = await GetConfiguredProjectAsync(_vsProjectAdapter.Project);
+            var project = await _configuredProject.GetValueAsync();
             IBuildDependencyProjectReferencesService service = project.Services.ProjectReferences;
 
-            // TODO NK - There's something *weird* about this
-            // The resolved references returns the dll path.
-            // The unresolved references returns the project file path, but again stands as unresolved.
-
-            var resolvedProjectReferences = await service.GetResolvedReferencesAsync();
-            var unresolvedProjectReferences = await service.GetUnresolvedReferencesAsync();
-
+            if (service == null)
+            {
+                return Enumerable.Empty<ProjectRestoreReference>();
+            }
             var results = new List<ProjectRestoreReference>();
-            var hasMissingReferences = unresolvedProjectReferences.Any();
+            var hasMissingReferences = false;
 
-            foreach (IBuildDependencyProjectReference projectReference in resolvedProjectReferences)
+            foreach (IUnresolvedBuildDependencyProjectReference projectReference in await service.GetUnresolvedReferencesAsync())
             {
                 try
                 {
-                    var childProjectPath = await projectReference.Metadata.GetEvaluatedPropertyValueAsync("MSBuildSourceProjectFile");
-                    // TODO NK - Skip shared projects!
-
-                    var projectRestoreReference = new ProjectRestoreReference()
+                    if (!await projectReference.GetReferenceOutputAssemblyAsync())
                     {
-                        ProjectPath = childProjectPath,
-                        ProjectUniqueName = childProjectPath
-                    };
+                        string childProjectPath = await projectReference.GetFullPathAsync();
+                        var projectRestoreReference = new ProjectRestoreReference()
+                        {
+                            ProjectPath = childProjectPath,
+                            ProjectUniqueName = childProjectPath
+                        };
 
-                    results.Add(projectRestoreReference);
+                        results.Add(projectRestoreReference);
+                    }
                 }
                 catch (Exception ex)
                 {
                     hasMissingReferences = true;
-                    // Are exceptions expected here
                     logger.LogDebug(ex.ToString());
                 }
             }

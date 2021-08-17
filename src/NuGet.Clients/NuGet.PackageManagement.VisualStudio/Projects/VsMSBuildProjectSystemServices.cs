@@ -69,7 +69,7 @@ namespace NuGet.PackageManagement.VisualStudio
             // if it's a native project, we can have a different references reader.
             if (vsProjectSystem is CpsProjectSystem)
             {
-                ReferencesReader = new CpsProjectSystemReferenceReader(vsProjectAdapter, this);
+                ReferencesReader = new CpsProjectSystemReferenceReader(vsProjectAdapter, _threadingService);
             }
             else
             {
